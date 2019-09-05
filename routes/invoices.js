@@ -95,7 +95,23 @@ router.put("/:id", async function(req, res, next) {
 })
 
 router.delete("/:id", async function(req, res, next) {
-  
+  try {
+
+    //returning an id differentiates if an id was deleted or not 
+    const result = await db.query(
+      `DELETE FROM invoices WHERE id=$1 RETURNING id`,
+      [req.params.id]
+    );
+
+    if(result.rows.length === 0) {
+      throw new ExpressError('Invoice does not exist', 404)      
+    }
+
+    return res.json({status: "deleted"});
+  }
+  catch (err) {
+    return next(err)
+  }
 })
 
 module.exports = router; 

@@ -76,14 +76,16 @@ router.put("/:code", async function (req, res, next) {
 
 router.delete("/:code", async function (req, res, next) {
   try {
+    const checkedCompany = await db.query(`SELECT code FROM companies WHERE code=$1`, 
+                                         [req.params.code])
+    if(!checkedCompany.rows[0]){
+    throw new ExpressError('Invoice does not exist', 404)      
+    }
+
     const result = await db.query(
       `DELETE FROM companies WHERE code=$1`,
       [req.params.code]
     );
-
-    if (!result.rows[0]) {
-      throw new ExpressError("No such company!", 404);
-    }
 
     return res.json({status: "deleted"});
   }
